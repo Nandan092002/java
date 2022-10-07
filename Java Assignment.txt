@@ -1,0 +1,241 @@
+import java.util.*;
+import java.io.*;
+class Account implements Serializable{
+protected int Acc_Num;
+protected String Holder_Name;
+int pin;
+int balance;
+public Account(int Acc_Num, String Holder_Name, int pin, int balance) {
+super();
+this.Acc_Num = Acc_Num;
+this.Holder_Name = Holder_Name;
+this.pin = pin;
+this.balance = balance;
+}
+public int getAcc_Num() {
+return Acc_Num;
+}
+public void setAcc_Num(int Acc_Num) {
+this.Acc_Num = Acc_Num;
+}
+public String getHolder_Name() {
+return Holder_Name;
+}
+public void setHolder_Name(String Holder_Name) {
+this.Holder_Name = Holder_Name;
+}
+public int getPin() {
+return pin;
+}
+public void setPin(int pin) {
+this.pin = pin;
+}
+public int getBalance() {
+return balance;
+}
+public void setBalance(int balance) {
+this.balance = balance;
+}
+@Override
+public String toString() {
+return  Acc_Num + "\t\t" + Holder_Name + "\t "
++ pin + "\t" + balance ;
+}
+
+
+}
+class BankDatabase implements java.io.Serializable{
+
+static List<Account>acc=new ArrayList<>();
+public BankDatabase(){
+Account a=new Account(101,"Suresh",2343,25234);
+Account b=new Account(102,"Ganesh",5432,34123);
+Account c=new Account(103,"Magesh",7854,26100);
+Account d=new Account(104,"Naresh",2345,80000);
+Account e=new Account(105,"Harish",1907,103400);
+acc.add(a);
+acc.add(b);
+acc.add(c);
+acc.add(d);
+acc.add(e);
+}
+
+
+
+@Override
+public String toString() {
+return super.toString();
+}
+
+
+
+public static void   cusdetails() {
+System.out.println("Account_number\t Name\t pin \tbalance");
+for(Account a:acc)
+{
+System.out.println(a.toString());
+}
+
+}
+public static void checkbalance(int accnum,int pin) {
+for(Account a:acc) {
+if(a.Acc_Num==accnum) {
+System.out.println(a.getBalance());
+break;
+}
+}
+}
+public static void  withdraw(int accnumber,int amount,int pin) {
+for(Account a:acc) {
+if(a.Acc_Num==accnumber) {
+if(a.balance>amount) {
+a.balance=a.balance-amount;
+System.out.println("after withdraw"+a.balance);
+}
+else {
+System.out.println("Insufficient Balance ");
+}
+}
+}
+}
+public static boolean checkpin(int accnum,int pin) {
+for(Account a:acc) {
+if(a.Acc_Num==accnum&&a.pin==pin) {
+         return true;
+}
+}
+return false;}
+
+public static void transfer(int accnum,int totransfer,int amount) {
+int flag=0;
+for(Account a:acc) {
+if(a.Acc_Num==accnum) {
+if(a.balance>amount) {
+a.balance=a.balance-amount;
+     flag=1;
+}
+
+else {
+System.out.println("Insufficient Balance ");
+}
+}
+               }
+if(flag==1) {
+for(Account b:acc) {
+if(b.Acc_Num==totransfer) {
+b.balance=b.balance+amount;}
+                        }
+                       }
+}
+   public static void serial()  {
+  try {
+ 
+  FileOutputStream fil = new FileOutputStream("C:\\Users\\nanda\\Documents\\java assingment\\atm.txt");
+           ObjectOutputStream out = new ObjectOutputStream(fil);
+           out.writeObject(acc);
+           out.close();
+           fil.close();
+           System.out.println("\nSerialization Successful...\n");
+  }
+  catch(Exception e) {
+  System.out.println(e);
+  }
+   }
+  public static void deserial() throws ClassNotFoundException {
+ try {
+          FileInputStream fileIn = new FileInputStream("C:\\Users\\nanda\\Documents\\java assingment\\atm.txt");
+          ObjectInputStream in = new ObjectInputStream(fileIn);
+          System.out.println("Deserialized Data: \n" + in.readObject().toString());
+          in.close();
+          fileIn.close();
+      } catch (FileNotFoundException e) {
+          e.printStackTrace();
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+  }
+
+
+}
+
+
+public class ATM {
+
+public static void main(String[] args) throws ClassNotFoundException {
+Scanner sc =new Scanner(System.in);
+BankDatabase bank=new BankDatabase();
+   while(true) {
+ 
+  System.out.println("Enter 1 to load cash");
+  System.out.println("Enter 2 to view customerdetails");
+  System.out.println("Enter 3 to transfer or withdraw or checkbalance");
+  System.out.println("Enter the option:");
+  int option=sc.nextInt();
+  switch(option) {
+   case 1:
+    System.out.println("Enter the Denominations");
+     System.out.println("2000 = ");
+     int d1=sc.nextInt();
+     System.out.println("500 = ");
+     int d2=sc.nextInt();
+     System.out.println("100 = ");
+     int d3=sc.nextInt();
+    
+    break;
+   case 2:
+    bank.cusdetails() ;
+    bank.serial();
+    bank.deserial();
+    break;
+   case 3:
+    System.out.println("1 to check balance:");
+    System.out.println("2 to Withdraw:");
+    System.out.println("3 to transfer:");
+    System.out.println("Enter the enquiry option:");
+    int enquiry=sc.nextInt();
+    System.out.println("Enter the account number:");
+    int accnum=sc.nextInt();
+    System.out.println("Enter the pin:");
+    int pin=sc.nextInt();
+    if(bank.checkpin(accnum,pin)) {
+           switch(enquiry) {
+            case 1:
+            System.out.println("BALANCE IS:");
+            bank.checkbalance(accnum,pin);
+            bank.serial();
+            bank.deserial();
+            break;
+            case 2:
+            System.out.println("Enter the amount to withdraw:");
+            int amount=sc.nextInt();
+            bank.withdraw(accnum,amount,pin);
+            bank.serial();
+            bank.deserial();
+            break;
+            case 3:
+            System.out.println("Enter the accont number to transfer: ");
+            int totransfer=sc.nextInt();
+            System.out.println("Enter the amount  to transfer: ");
+            int amounttotransfer=sc.nextInt();
+            bank.transfer(accnum,totransfer,amounttotransfer);
+            bank.serial();
+            bank.deserial();
+            break;
+           }
+    }
+    else {
+    System.out.println("incorect pin");
+    }
+           
+           break;
+   case 4:
+        getATMbalance(accnum);
+    
+        break;
+   
+     
+  }
+   }
+}
+}
+
